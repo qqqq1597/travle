@@ -1,4 +1,4 @@
-const addDayBtn = document.getElementById('addDayBtn');
+ï»¿const addDayBtn = document.getElementById('addDayBtn');
 const saveBtn = document.getElementById('saveBtn');
 const loadBtn = document.getElementById('loadBtn');
 const overviewBtn = document.getElementById('overviewBtn');
@@ -8,28 +8,28 @@ const daysContainer = document.getElementById('daysContainer');
 let dayCount = 0;
 let isDarkMode = false;
 
-// ¤Á´«¥DÃD
+// åˆ‡æ›ä¸»é¡Œ
 themeToggleBtn.addEventListener('click', () => {
   isDarkMode = !isDarkMode;
   document.body.classList.toggle('dark-mode', isDarkMode);
-  themeToggleBtn.textContent = isDarkMode ? '?? ¤Á´«¥Õ¤Ñ¼Ò¦¡' : '?? ¤Á´«©]¶¡¼Ò¦¡';
+  themeToggleBtn.textContent = isDarkMode ? '?? åˆ‡æ›ç™½å¤©æ¨¡å¼' : '?? åˆ‡æ›å¤œé–“æ¨¡å¼';
 });
 
-// ·s¼W¤@¤Ñ
+// æ–°å¢ä¸€å¤©
 addDayBtn.addEventListener('click', () => {
   dayCount++;
   createDay(dayCount, []);
 });
 
-// «Ø¥ß¤@¤Ñªº°Ï¶ô
+// å»ºç«‹ä¸€å¤©çš„å€å¡Š
 function createDay(dayNumber, activities) {
   const dayDiv = document.createElement('div');
   dayDiv.className = 'day';
   if (isDarkMode) dayDiv.classList.add('dark-mode');
   dayDiv.innerHTML = `
-    <h2>²Ä ${dayNumber} ¤Ñ</h2>
-    <button class="delete-day-btn">§R°£³o¤Ñ</button>
-    <button class="add-activity-btn">? ·s¼W´ºÂI/¦æµ{</button>
+    <h2>ç¬¬ ${dayNumber} å¤©</h2>
+    <button class="delete-day-btn">åˆªé™¤é€™å¤©</button>
+    <button class="add-activity-btn">? æ–°å¢æ™¯é»/è¡Œç¨‹</button>
     <div class="activities"></div>
   `;
 
@@ -53,17 +53,17 @@ function createDay(dayNumber, activities) {
   daysContainer.appendChild(dayDiv);
 }
 
-// §ó·s¤Ñ¼Æ¼ĞÃD
+// æ›´æ–°å¤©æ•¸æ¨™é¡Œ
 function updateDayNumbers() {
   const days = document.querySelectorAll('.day');
   dayCount = 0;
   days.forEach((day, index) => {
-    day.querySelector('h2').textContent = `²Ä ${index + 1} ¤Ñ`;
+    day.querySelector('h2').textContent = `ç¬¬ ${index + 1} å¤©`;
     dayCount++;
   });
 }
 
-// ·s¼W¦æµ{´ºÂI
+// æ–°å¢è¡Œç¨‹æ™¯é»
 function addActivityBlock(container, activityText, locationText, startTimeText = '', endTimeText = '') {
   const block = document.createElement('div');
   block.className = 'activity-block';
@@ -71,18 +71,18 @@ function addActivityBlock(container, activityText, locationText, startTimeText =
   block.innerHTML = `
     <div style="display: flex; gap: 10px;">
       <div>
-        <label>¶}©l®É¶¡</label><br>
+        <label>é–‹å§‹æ™‚é–“</label><br>
         <input type="time" class="start-time" value="${startTimeText}">
       </div>
       <div>
-        <label>µ²§ô®É¶¡</label><br>
+        <label>çµæŸæ™‚é–“</label><br>
         <input type="time" class="end-time" value="${endTimeText}">
       </div>
     </div>
-    <textarea class="activity" rows="2" placeholder="¿é¤J¦æµ{¤º®e...">${activityText}</textarea>
-    <input type="text" class="location" placeholder="¿é¤J¦aÂI¦WºÙ" value="${locationText}">
+    <textarea class="activity" rows="2" placeholder="è¼¸å…¥è¡Œç¨‹å…§å®¹...">${activityText}</textarea>
+    <input type="text" class="location" placeholder="è¼¸å…¥åœ°é»åç¨±" value="${locationText}">
     <iframe class="map" loading="lazy"></iframe>
-    <button class="delete-activity-btn">§R°£³o­Ó´ºÂI</button>
+    <button class="delete-activity-btn">åˆªé™¤é€™å€‹æ™¯é»</button>
   `;
 
   const locationInput = block.querySelector('.location');
@@ -105,7 +105,7 @@ function addActivityBlock(container, activityText, locationText, startTimeText =
   container.appendChild(block);
 }
 
-// Àx¦s¦æµ{
+// å„²å­˜è¡Œç¨‹
 saveBtn.addEventListener('click', () => {
   const allDays = document.querySelectorAll('.day');
   const data = [];
@@ -126,10 +126,10 @@ saveBtn.addEventListener('click', () => {
   });
 
   localStorage.setItem('tripPlan', JSON.stringify(data));
-  alert('¦æµ{¤wÀx¦s¡I');
+  alert('è¡Œç¨‹å·²å„²å­˜ï¼');
 });
 
-// ¸ü¤J¦æµ{
+// è¼‰å…¥è¡Œç¨‹
 loadBtn.addEventListener('click', () => {
   const savedData = localStorage.getItem('tripPlan');
   if (savedData) {
@@ -140,17 +140,17 @@ loadBtn.addEventListener('click', () => {
       dayCount++;
       createDay(dayCount, item.activities);
     });
-    alert('¦æµ{¤w¸ü¤J¡I');
+    alert('è¡Œç¨‹å·²è¼‰å…¥ï¼');
   } else {
-    alert('¥Ø«e¨S¦³Àx¦sªº¦æµ{³á¡I');
+    alert('ç›®å‰æ²’æœ‰å„²å­˜çš„è¡Œç¨‹å–”ï¼');
   }
 });
 
-// Á`Äı¦æµ{
+// ç¸½è¦½è¡Œç¨‹
 overviewBtn.addEventListener('click', () => {
   const allDays = document.querySelectorAll('.day');
   if (allDays.length === 0) {
-    alert('¥Ø«eÁÙ¨S¦³¦æµ{³á¡I');
+    alert('ç›®å‰é‚„æ²’æœ‰è¡Œç¨‹å–”ï¼');
     return;
   }
 
@@ -159,13 +159,13 @@ overviewBtn.addEventListener('click', () => {
     const activitiesDiv = day.querySelector('.activities');
     sortActivitiesByTime(activitiesDiv);
 
-    summary += `²Ä ${index + 1} ¤Ñ\n`;
+    summary += `ç¬¬ ${index + 1} å¤©\n`;
     const blocks = activitiesDiv.querySelectorAll('.activity-block');
     blocks.forEach((block, idx) => {
       const startTime = block.querySelector('.start-time').value || '??:??';
       const endTime = block.querySelector('.end-time').value || '??:??';
-      const activity = block.querySelector('.activity').value || '(¥¼¶ñ¼g¦æµ{)';
-      const location = block.querySelector('.location').value || '(¥¼¶ñ¼g¦aÂI)';
+      const activity = block.querySelector('.activity').value || '(æœªå¡«å¯«è¡Œç¨‹)';
+      const location = block.querySelector('.location').value || '(æœªå¡«å¯«åœ°é»)';
 
       let durationText = '';
       if (startTime !== '??:??' && endTime !== '??:??') {
@@ -175,10 +175,10 @@ overviewBtn.addEventListener('click', () => {
         if (diff < 0) diff += 24 * 60;
         const hours = Math.floor(diff / 60);
         const minutes = diff % 60;
-        durationText = `(${hours}¤p®É${minutes}¤ÀÄÁ)`;
+        durationText = `(${hours}å°æ™‚${minutes}åˆ†é˜)`;
       }
 
-      summary += `${idx + 1}. ${activity} (${location}) - ¶}©l®É¶¡¡G${startTime} µ²§ô®É¶¡¡G${endTime} ${durationText}\n`;
+      summary += `${idx + 1}. ${activity} (${location}) - é–‹å§‹æ™‚é–“ï¼š${startTime} çµæŸæ™‚é–“ï¼š${endTime} ${durationText}\n`;
     });
     summary += '\n';
   });
@@ -186,7 +186,7 @@ overviewBtn.addEventListener('click', () => {
   alert(summary);
 });
 
-// ±Æ§Ç¦æµ{«ö®É¶¡¶¶§Ç
+// æ’åºè¡Œç¨‹æŒ‰æ™‚é–“é †åº
 function sortActivitiesByTime(container) {
   const blocks = [...container.querySelectorAll('.activity-block')];
   blocks.sort((a, b) => {
