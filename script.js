@@ -12,7 +12,7 @@ let isDarkMode = false;
 themeToggleBtn.addEventListener('click', () => {
   isDarkMode = !isDarkMode;
   document.body.classList.toggle('dark-mode', isDarkMode);
-  themeToggleBtn.textContent = isDarkMode ? '?? 切換白天模式' : '?? 切換夜間模式';
+  themeToggleBtn.textContent = isDarkMode ? '切換白天模式' : '切換夜間模式';
 });
 
 // 新增一天
@@ -29,7 +29,7 @@ function createDay(dayNumber, activities) {
   dayDiv.innerHTML = `
     <h2>第 ${dayNumber} 天</h2>
     <button class="delete-day-btn">刪除這天</button>
-    <button class="add-activity-btn">? 新增景點/行程</button>
+    <button class="add-activity-btn">新增景點/行程</button>
     <div class="activities"></div>
   `;
 
