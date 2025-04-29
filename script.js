@@ -1,19 +1,6 @@
-﻿// Firebase configuration
-const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_AUTH_DOMAIN",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_STORAGE_BUCKET",
-  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-  appId: "YOUR_APP_ID"
-};
-
-// Initialize Firebase
-const app = firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore(app);
-
-const addDayBtn = document.getElementById('addDayBtn');
+﻿const addDayBtn = document.getElementById('addDayBtn');
 const saveBtn = document.getElementById('saveBtn');
+const loadBtn = document.getElementById('loadBtn');
 const overviewBtn = document.getElementById('overviewBtn');
 const themeToggleBtn = document.getElementById('themeToggleBtn');
 const daysContainer = document.getElementById('daysContainer');
@@ -202,6 +189,6 @@ function sortActivitiesByTime(container) {
 
 // 儲存行程到 Firebase
 async function saveTripPlan(data) {
-  const docRef = await firebase.firestore().collection("tripPlans").add(data);
-  console.log("Document written with ID: ", docRef.id);
+  const docRef = await addDoc(collection(db, "tripPlans"), data);
+  console.log("行程已儲存，ID: ", docRef.id);
 }
