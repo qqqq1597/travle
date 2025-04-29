@@ -106,7 +106,7 @@ function addActivityBlock(container, activityText, locationText, startTimeText =
 }
 
 // 儲存行程
-saveBtn.addEventListener('click', () => {
+saveBtn.addEventListener('click', async () => {
   const allDays = document.querySelectorAll('.day');
   const data = [];
 
@@ -125,15 +125,20 @@ saveBtn.addEventListener('click', () => {
     data.push({ dayNumber: day.querySelector('h2').textContent, activities });
   });
 
-  localStorage.setItem('tripPlan', JSON.stringify(data));
-  alert('行程已儲存！');
+  // 儲存到 Firebase
+  try {
+    await saveTripPlan(data);
+    alert('行程已儲存！');
+  } catch (error) {
+    alert('儲存行程失敗！');
+    console.error(error);
+  }
 });
 
 // 載入行程
-loadBtn.addEventListener('click', () => {
-  const savedData = localStorage.getItem('tripPlan');
-  if (savedData) {
-    const data = JSON.parse(savedData);
+loadBtn.addEventListener('click', async () => {
+  try {
+    const data = await loadTripPlans();
     daysContainer.innerHTML = '';
     dayCount = 0;
     data.forEach(item => {
@@ -141,8 +146,9 @@ loadBtn.addEventListener('click', () => {
       createDay(dayCount, item.activities);
     });
     alert('行程已載入！');
-  } else {
-    alert('目前沒有儲存的行程喔！');
+  } catch (error) {
+    alert('載入行程失敗！');
+    console.error(error);
   }
 });
 
@@ -197,6 +203,19 @@ function sortActivitiesByTime(container) {
 
   blocks.forEach(block => container.appendChild(block));
 }
-document.getElementById('addFlightButton').addEventListener('click', function() {
-  alert('航班按鈕被點擊了！');
-});
+
+// 儲存行程到 Firebase
+async function saveTripPlan(data) {
+  const docRef = await addDoc(collection(db, "tripPlans"), data);
+  console.log("Document written with ID: ", docRef.id);
+}
+
+// 讀取行程資料從 Firebase
+async function loadTripPlans() {
+  const querySnapshot = await getDocs(collection(db, "tripPlans"));
+  let data = [];
+  querySnapshot.forEach((doc) => {
+    data.push(doc.data());
+  });
+  return data;
+}
