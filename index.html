@@ -27,10 +27,12 @@
   <!-- Firebase JavaScript SDK -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getFirestore, collection, addDoc, getDocs, updateDoc, doc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
     import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-analytics.js";
 
+    // Firebase 配置
     const firebaseConfig = {
-      apiKey: "AIzaSyCFObBS7xpcJsp4rQsqvLLvD1SJ-6y4o4k",
+      apiKey: "AIzaSyCFObBS7xpcJsp4rQsqvLLvD1SJ-6y4o4k", // 用你的 Firebase 配置替換
       authDomain: "travel-flight-5ba69.firebaseapp.com",
       projectId: "travel-flight-5ba69",
       storageBucket: "travel-flight-5ba69.firebasestorage.app",
@@ -39,53 +41,35 @@
       measurementId: "G-LFWZ863Y1F"
     };
 
+    // 初始化 Firebase
     const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
     const analytics = getAnalytics(app);
-  </script>
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-  import { getFirestore, collection, addDoc, getDocs, updateDoc, doc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-  // Firebase 配置
-  const firebaseConfig = {
-    apiKey: "YOUR_API_KEY",
-    authDomain: "YOUR_AUTH_DOMAIN",
-    projectId: "YOUR_PROJECT_ID",
-    storageBucket: "YOUR_STORAGE_BUCKET",
-    messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-    appId: "YOUR_APP_ID",
-    measurementId: "YOUR_MEASUREMENT_ID"
-  };
-
-  // 初始化 Firebase
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
-
-  // 儲存行程資料
-  async function saveTripPlan(data) {
-    try {
-      const docRef = await addDoc(collection(db, "tripPlans"), data);
-      console.log("Document written with ID: ", docRef.id);
-    } catch (e) {
-      console.error("Error adding document: ", e);
+    // 儲存行程資料
+    async function saveTripPlan(data) {
+      try {
+        const docRef = await addDoc(collection(db, "tripPlans"), data);
+        console.log("Document written with ID: ", docRef.id);
+      } catch (e) {
+        console.error("Error adding document: ", e);
+      }
     }
-  }
 
-  // 讀取行程資料
-  async function loadTripPlans() {
-    const querySnapshot = await getDocs(collection(db, "tripPlans"));
-    querySnapshot.forEach((doc) => {
-      console.log(doc.id, " => ", doc.data());
-    });
-  }
+    // 讀取行程資料
+    async function loadTripPlans() {
+      const querySnapshot = await getDocs(collection(db, "tripPlans"));
+      querySnapshot.forEach((doc) => {
+        console.log(doc.id, " => ", doc.data());
+      });
+    }
 
-  // 實時更新資料
-  async function updateTripPlan(docId, newData) {
-    const tripRef = doc(db, "tripPlans", docId);
-    await updateDoc(tripRef, newData);
-  }
-</script>
-
+    // 實時更新資料
+    async function updateTripPlan(docId, newData) {
+      const tripRef = doc(db, "tripPlans", docId);
+      await updateDoc(tripRef, newData);
+    }
+  </script>
 
   <!-- 主要JS文件 -->
   <script src="script.js"></script>
