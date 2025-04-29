@@ -24,12 +24,9 @@
 
   <div id="daysContainer"></div>
 
-  <!-- 你的網頁功能 -->
-  <script src="script.js"></script>
-
   <!-- 正確載入 Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-analytics.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-analytics.js"></script>
 
   <script>
     // 這裡是你的 Firebase 設定
@@ -45,7 +42,10 @@
 
     // 初始化 Firebase
     const app = firebase.initializeApp(firebaseConfig);
-    const analytics = firebase.analytics();
+    const analytics = firebase.analytics(app); // 使用 firebase.analytics 初始化
   </script>
+
+  <!-- 這裡是你的主要 JS -->
+  <script src="script.js"></script>
 </body>
 </html>
