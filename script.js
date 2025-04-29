@@ -1,6 +1,25 @@
-﻿const addDayBtn = document.getElementById('addDayBtn');
+﻿import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCFObBS7xpcJsp4rQsqvLLvD1SJ-6y4o4k",
+  authDomain: "travel-flight-5ba69.firebaseapp.com",
+  projectId: "travel-flight-5ba69",
+  storageBucket: "travel-flight-5ba69.appspot.com",
+  messagingSenderId: "225700601197",
+  appId: "1:225700601197:web:889e51055a57eb1477ce64",
+  measurementId: "G-LFWZ863Y1F"
+};
+
+// 初始化 Firebase
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+// 重要：固定一個共用文件
+const sharedDocRef = doc(db, "tripPlans", "sharedPlan");
+
+const addDayBtn = document.getElementById('addDayBtn');
 const saveBtn = document.getElementById('saveBtn');
-const loadBtn = document.getElementById('loadBtn');
 const overviewBtn = document.getElementById('overviewBtn');
 const themeToggleBtn = document.getElementById('themeToggleBtn');
 const daysContainer = document.getElementById('daysContainer');
@@ -19,9 +38,10 @@ themeToggleBtn.addEventListener('click', () => {
 addDayBtn.addEventListener('click', () => {
   dayCount++;
   createDay(dayCount, []);
+  saveToFirebase(); // 每次有變動就儲存
 });
 
-// 建立一天的區塊
+// 建立一天
 function createDay(dayNumber, activities) {
   const dayDiv = document.createElement('div');
   dayDiv.className = 'day';
@@ -39,11 +59,13 @@ function createDay(dayNumber, activities) {
 
   addActivityBtn.addEventListener('click', () => {
     addActivityBlock(activitiesDiv, '', '', '', '');
+    saveToFirebase(); // 有變動即儲存
   });
 
   deleteDayBtn.addEventListener('click', () => {
     dayDiv.remove();
     updateDayNumbers();
+    saveToFirebase(); // 有變動即儲存
   });
 
   activities.forEach(item => {
@@ -92,6 +114,7 @@ function addActivityBlock(container, activityText, locationText, startTimeText =
   locationInput.addEventListener('input', () => {
     const query = encodeURIComponent(locationInput.value);
     mapFrame.src = query ? `https://www.google.com/maps?q=${query}&output=embed` : '';
+    saveToFirebase(); // 地點變動即儲存
   });
 
   if (locationText.trim() !== '') {
@@ -100,20 +123,31 @@ function addActivityBlock(container, activityText, locationText, startTimeText =
 
   deleteBtn.addEventListener('click', () => {
     block.remove();
+    saveToFirebase(); // 有刪除即儲存
   });
 
   container.appendChild(block);
 }
 
-// 儲存行程
-saveBtn.addEventListener('click', async () => {
+// 排序行程
+function sortActivitiesByTime(container) {
+  const blocks = [...container.querySelectorAll('.activity-block')];
+  blocks.sort((a, b) => {
+    const startA = a.querySelector('.start-time').value;
+    const startB = b.querySelector('.start-time').value;
+    return startA.localeCompare(startB);
+  });
+  blocks.forEach(block => container.appendChild(block));
+}
+
+// 立即儲存到 Firebase
+async function saveToFirebase() {
   const allDays = document.querySelectorAll('.day');
   const data = [];
 
   allDays.forEach(day => {
     const activitiesDiv = day.querySelector('.activities');
     sortActivitiesByTime(activitiesDiv);
-
     const activities = [];
     day.querySelectorAll('.activity-block').forEach(block => {
       const activity = block.querySelector('.activity').value;
@@ -125,30 +159,21 @@ saveBtn.addEventListener('click', async () => {
     data.push({ dayNumber: day.querySelector('h2').textContent, activities });
   });
 
-  // 儲存到 Firebase
-  try {
-    await saveTripPlan(data);
-    alert('行程已儲存！');
-  } catch (error) {
-    alert('儲存行程失敗！');
-    console.error(error);
-  }
-});
+  await setDoc(sharedDocRef, { days: data });
+}
 
-// 載入行程
-loadBtn.addEventListener('click', async () => {
-  try {
-    const data = await loadTripPlans();
+// 監聽 Firebase 即時更新
+onSnapshot(sharedDocRef, (docSnap) => {
+  if (docSnap.exists()) {
+    const tripData = docSnap.data();
+    const days = tripData.days || [];
+
     daysContainer.innerHTML = '';
     dayCount = 0;
-    data.forEach(item => {
+    days.forEach(item => {
       dayCount++;
       createDay(dayCount, item.activities);
     });
-    alert('行程已載入！');
-  } catch (error) {
-    alert('載入行程失敗！');
-    console.error(error);
   }
 });
 
@@ -191,31 +216,3 @@ overviewBtn.addEventListener('click', () => {
 
   alert(summary);
 });
-
-// 排序行程按時間順序
-function sortActivitiesByTime(container) {
-  const blocks = [...container.querySelectorAll('.activity-block')];
-  blocks.sort((a, b) => {
-    const startA = a.querySelector('.start-time').value;
-    const startB = b.querySelector('.start-time').value;
-    return startA.localeCompare(startB);
-  });
-
-  blocks.forEach(block => container.appendChild(block));
-}
-
-// 儲存行程到 Firebase
-async function saveTripPlan(data) {
-  const docRef = await addDoc(collection(db, "tripPlans"), data);
-  console.log("Document written with ID: ", docRef.id);
-}
-
-// 讀取行程資料從 Firebase
-async function loadTripPlans() {
-  const querySnapshot = await getDocs(collection(db, "tripPlans"));
-  let data = [];
-  querySnapshot.forEach((doc) => {
-    data.push(doc.data());
-  });
-  return data;
-}

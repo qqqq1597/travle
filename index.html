@@ -1,10 +1,10 @@
 ﻿<!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>我的旅遊行程表</title>
-  <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>香港自由行 5/24-25</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <header>
@@ -18,60 +18,115 @@
     </a>
     <button id="addDayBtn">➕ 新增一天</button>
     <button id="saveBtn">💾 儲存行程</button>
-    <button id="loadBtn">📂 載入行程</button>
-    <button id="overviewBtn">🗺️ 總覽行程</button>
   </div>
 
   <div id="daysContainer"></div>
 
-  <!-- Firebase JavaScript SDK -->
+  <!-- Firebase 實時同步腳本 -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-    import { getFirestore, collection, addDoc, getDocs, updateDoc, doc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-    import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-analytics.js";
+    import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-    // Firebase 配置
     const firebaseConfig = {
-      apiKey: "AIzaSyCFObBS7xpcJsp4rQsqvLLvD1SJ-6y4o4k", // 用你的 Firebase 配置替換
+      apiKey: "AIzaSyCFObBS7xpcJsp4rQsqvLLvD1SJ-6y4o4k",
       authDomain: "travel-flight-5ba69.firebaseapp.com",
       projectId: "travel-flight-5ba69",
-      storageBucket: "travel-flight-5ba69.firebasestorage.app",
+      storageBucket: "travel-flight-5ba69.appspot.com",
       messagingSenderId: "225700601197",
       appId: "1:225700601197:web:889e51055a57eb1477ce64",
       measurementId: "G-LFWZ863Y1F"
     };
 
-    // 初始化 Firebase
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
-    const analytics = getAnalytics(app);
+    const sharedDocRef = doc(db, "tripPlans", "sharedPlan");
 
-    // 儲存行程資料
+    // 將資料儲存到雲端
     async function saveTripPlan(data) {
       try {
-        const docRef = await addDoc(collection(db, "tripPlans"), data);
-        console.log("Document written with ID: ", docRef.id);
+        await setDoc(sharedDocRef, { days: data });
+        console.log("✅ 行程已儲存！");
       } catch (e) {
-        console.error("Error adding document: ", e);
+        console.error("❌ 儲存失敗：", e);
       }
     }
 
-    // 讀取行程資料
-    async function loadTripPlans() {
-      const querySnapshot = await getDocs(collection(db, "tripPlans"));
-      querySnapshot.forEach((doc) => {
-        console.log(doc.id, " => ", doc.data());
+    // 即時同步資料
+    function listenToTripPlans() {
+      onSnapshot(sharedDocRef, (docSnap) => {
+        if (docSnap.exists()) {
+          const tripData = docSnap.data();
+          const days = tripData.days || [];
+
+          // 清空再重新顯示
+          const container = document.getElementById("daysContainer");
+          container.innerHTML = "";
+          dayCount = 0;
+          days.forEach((day) => {
+            dayCount++;
+            createDay(dayCount, day.activities);
+          });
+        }
       });
     }
 
-    // 實時更新資料
-    async function updateTripPlan(docId, newData) {
-      const tripRef = doc(db, "tripPlans", docId);
-      await updateDoc(tripRef, newData);
-    }
+    // 暴露給外部使用
+    window.saveTripPlanToCloud = saveTripPlan;
+
+    // 等 DOM 有了再監聽
+    window.addEventListener("DOMContentLoaded", () => {
+      listenToTripPlans();
+    });
   </script>
 
-  <!-- 主要JS文件 -->
-  <script src="script.js"></script>
+  <!-- 主邏輯：新增天數、儲存本地活動 -->
+  <script>
+    let dayCount = 0;
+
+    const daysContainer = document.getElementById("daysContainer");
+    const addDayBtn = document.getElementById("addDayBtn");
+    const saveBtn = document.getElementById("saveBtn");
+
+    function createDay(dayNumber, activities = []) {
+      const dayDiv = document.createElement("div");
+      dayDiv.className = "day";
+      dayDiv.innerHTML = `<h2>Day ${dayNumber}</h2>`;
+
+      activities.forEach(activity => {
+        const act = document.createElement("div");
+        act.className = "activity";
+        act.contentEditable = true;
+        act.textContent = activity;
+        dayDiv.appendChild(act);
+      });
+
+      const newActivity = document.createElement("div");
+      newActivity.className = "activity";
+      newActivity.contentEditable = true;
+      newActivity.textContent = "新增活動...";
+      dayDiv.appendChild(newActivity);
+
+      daysContainer.appendChild(dayDiv);
+    }
+
+    addDayBtn.addEventListener("click", () => {
+      dayCount++;
+      createDay(dayCount);
+    });
+
+    saveBtn.addEventListener("click", () => {
+      const allDays = [];
+
+      document.querySelectorAll(".day").forEach(dayDiv => {
+        const activities = Array.from(dayDiv.querySelectorAll(".activity"))
+          .map(div => div.textContent);
+        allDays.push({ activities });
+      });
+
+      if (window.saveTripPlanToCloud) {
+        window.saveTripPlanToCloud(allDays);
+      }
+    });
+  </script>
 </body>
 </html>
