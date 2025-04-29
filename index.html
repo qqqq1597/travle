@@ -1,4 +1,4 @@
-﻿
+﻿<!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
   <meta charset="UTF-8">
@@ -13,40 +13,39 @@
   </header>
 
   <div class="controls">
-<a href="https://qqqq1597.github.io/flight/index.html">
-  <button>航班</button>
-</a>
+    <a href="https://qqqq1597.github.io/flight/index.html">
+      <button>航班</button>
+    </a>
     <button id="addDayBtn">➕ 新增一天</button>
     <button id="saveBtn">💾 儲存行程</button>
     <button id="loadBtn">📂 載入行程</button>
     <button id="overviewBtn">🗺️ 總覽行程</button>
-    
   </div>
 
   <div id="daysContainer"></div>
 
+  <!-- 你的網頁功能 -->
   <script src="script.js"></script>
 
-// Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
+  <!-- 正確載入 Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-analytics.js"></script>
 
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
-const firebaseConfig = {
-  apiKey: "AIzaSyCFObBS7xpcJsp4rQsqvLLvD1SJ-6y4o4k",
-  authDomain: "travel-flight-5ba69.firebaseapp.com",
-  projectId: "travel-flight-5ba69",
-  storageBucket: "travel-flight-5ba69.firebasestorage.app",
-  messagingSenderId: "225700601197",
-  appId: "1:225700601197:web:889e51055a57eb1477ce64",
-  measurementId: "G-LFWZ863Y1F"
-};
+  <script>
+    // 這裡是你的 Firebase 設定
+    const firebaseConfig = {
+      apiKey: "AIzaSyCFObBS7xpcJsp4rQsqvLLvD1SJ-6y4o4k",
+      authDomain: "travel-flight-5ba69.firebaseapp.com",
+      projectId: "travel-flight-5ba69",
+      storageBucket: "travel-flight-5ba69.appspot.com",
+      messagingSenderId: "225700601197",
+      appId: "1:225700601197:web:889e51055a57eb1477ce64",
+      measurementId: "G-LFWZ863Y1F"
+    };
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
+    // 初始化 Firebase
+    const app = firebase.initializeApp(firebaseConfig);
+    const analytics = firebase.analytics();
+  </script>
 </body>
 </html>
