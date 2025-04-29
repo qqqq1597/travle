@@ -8,7 +8,7 @@
 </head>
 <body>
   <header>
-    <h1>自由行行程規劃器</h1>
+    <h1>香港自由行5/24-25</h1>
     <button id="themeToggleBtn">🌙 切換夜間模式</button>
   </header>
 
@@ -24,28 +24,26 @@
 
   <div id="daysContainer"></div>
 
-  <!-- 正確載入 Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-analytics.js"></script>
+  <!-- Firebase JavaScript SDK -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-analytics.js";
 
-  <script>
-    // 這裡是你的 Firebase 設定
     const firebaseConfig = {
       apiKey: "AIzaSyCFObBS7xpcJsp4rQsqvLLvD1SJ-6y4o4k",
       authDomain: "travel-flight-5ba69.firebaseapp.com",
       projectId: "travel-flight-5ba69",
-      storageBucket: "travel-flight-5ba69.appspot.com",
+      storageBucket: "travel-flight-5ba69.firebasestorage.app",
       messagingSenderId: "225700601197",
       appId: "1:225700601197:web:889e51055a57eb1477ce64",
       measurementId: "G-LFWZ863Y1F"
     };
 
-    // 初始化 Firebase
-    const app = firebase.initializeApp(firebaseConfig);
-    const analytics = firebase.analytics(app); // 使用 firebase.analytics 初始化
+    const app = initializeApp(firebaseConfig);
+    const analytics = getAnalytics(app);
   </script>
 
-  <!-- 這裡是你的主要 JS -->
+  <!-- 主要JS文件 -->
   <script src="script.js"></script>
 </body>
 </html>
