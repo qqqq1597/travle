@@ -179,6 +179,26 @@ function sortActivitiesByTime(container) {
 
   blocks.forEach(block => container.appendChild(block));
 }
-document.getElementById('addFlightButton').addEventListener('click', function() {
-  alert('航班按鈕被點擊了！');
+const daysContainer = document.getElementById('daysContainer');
+const addDayBtn = document.getElementById('addDayBtn');
+
+// 即時同步行程天數
+db.collection("tripDays").orderBy("createdAt").onSnapshot(snapshot => {
+  daysContainer.innerHTML = ''; // 清空畫面，重新渲染
+  snapshot.forEach(doc => {
+    const dayData = doc.data();
+    const div = document.createElement('div');
+    div.className = 'day';
+    div.textContent = `第 ${dayData.dayNumber} 天：${dayData.title || "未命名"}`;
+    daysContainer.appendChild(div);
+  });
+});
+
+// 新增一天的行程
+addDayBtn.addEventListener('click', () => {
+  db.collection("tripDays").add({
+    dayNumber: Date.now(), // 或用其他方式計數
+    title: `新行程`,
+    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+  });
 });
