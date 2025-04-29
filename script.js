@@ -1,6 +1,5 @@
 ﻿const addDayBtn = document.getElementById('addDayBtn');
 const saveBtn = document.getElementById('saveBtn');
-const loadBtn = document.getElementById('loadBtn');
 const overviewBtn = document.getElementById('overviewBtn');
 const themeToggleBtn = document.getElementById('themeToggleBtn');
 const daysContainer = document.getElementById('daysContainer');
@@ -106,7 +105,7 @@ function addActivityBlock(container, activityText, locationText, startTimeText =
 }
 
 // 儲存行程
-saveBtn.addEventListener('click', async () => {
+saveBtn.addEventListener('click', () => {
   const allDays = document.querySelectorAll('.day');
   const data = [];
 
@@ -125,14 +124,8 @@ saveBtn.addEventListener('click', async () => {
     data.push({ dayNumber: day.querySelector('h2').textContent, activities });
   });
 
-  // 儲存到 Firebase
-  try {
-    await saveTripPlan(data);
-    alert('行程已儲存！');
-  } catch (error) {
-    alert('儲存行程失敗！');
-    console.error(error);
-  }
+  localStorage.setItem('tripPlan', JSON.stringify(data));
+  alert('行程已儲存！');
 });
 
 // 總覽行程
@@ -186,9 +179,6 @@ function sortActivitiesByTime(container) {
 
   blocks.forEach(block => container.appendChild(block));
 }
-
-// 儲存行程到 Firebase
-async function saveTripPlan(data) {
-  const docRef = await addDoc(collection(db, "tripPlans"), data);
-  console.log("行程已儲存，ID: ", docRef.id);
-}
+document.getElementById('addFlightButton').addEventListener('click', function() {
+  alert('航班按鈕被點擊了！');
+});
