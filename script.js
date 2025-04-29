@@ -1,4 +1,17 @@
-﻿// DOM 元素
+﻿// Firebase configuration
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_AUTH_DOMAIN",
+  projectId: "YOUR_PROJECT_ID",
+  storageBucket: "YOUR_STORAGE_BUCKET",
+  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+  appId: "YOUR_APP_ID"
+};
+
+// Initialize Firebase
+const app = firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore(app);
+
 const addDayBtn = document.getElementById('addDayBtn');
 const saveBtn = document.getElementById('saveBtn');
 const overviewBtn = document.getElementById('overviewBtn');
@@ -8,7 +21,7 @@ const daysContainer = document.getElementById('daysContainer');
 let dayCount = 0;
 let isDarkMode = false;
 
-// 切換夜間模式
+// 切換主題
 themeToggleBtn.addEventListener('click', () => {
   isDarkMode = !isDarkMode;
   document.body.classList.toggle('dark-mode', isDarkMode);
@@ -21,7 +34,7 @@ addDayBtn.addEventListener('click', () => {
   createDay(dayCount, []);
 });
 
-// 建立一天區塊
+// 建立一天的區塊
 function createDay(dayNumber, activities) {
   const dayDiv = document.createElement('div');
   dayDiv.className = 'day';
@@ -63,8 +76,8 @@ function updateDayNumbers() {
   });
 }
 
-// 新增行程景點區塊
-function addActivityBlock(container, activityText, locationText, startTimeText, endTimeText) {
+// 新增行程景點
+function addActivityBlock(container, activityText, locationText, startTimeText = '', endTimeText = '') {
   const block = document.createElement('div');
   block.className = 'activity-block';
   if (isDarkMode) block.classList.add('dark-mode');
@@ -104,6 +117,36 @@ function addActivityBlock(container, activityText, locationText, startTimeText, 
 
   container.appendChild(block);
 }
+
+// 儲存行程
+saveBtn.addEventListener('click', async () => {
+  const allDays = document.querySelectorAll('.day');
+  const data = [];
+
+  allDays.forEach(day => {
+    const activitiesDiv = day.querySelector('.activities');
+    sortActivitiesByTime(activitiesDiv);
+
+    const activities = [];
+    day.querySelectorAll('.activity-block').forEach(block => {
+      const activity = block.querySelector('.activity').value;
+      const location = block.querySelector('.location').value;
+      const startTime = block.querySelector('.start-time').value;
+      const endTime = block.querySelector('.end-time').value;
+      activities.push({ activity, location, startTime, endTime });
+    });
+    data.push({ dayNumber: day.querySelector('h2').textContent, activities });
+  });
+
+  // 儲存到 Firebase
+  try {
+    await saveTripPlan(data);
+    alert('行程已儲存！');
+  } catch (error) {
+    alert('儲存行程失敗！');
+    console.error(error);
+  }
+});
 
 // 總覽行程
 overviewBtn.addEventListener('click', () => {
@@ -145,7 +188,7 @@ overviewBtn.addEventListener('click', () => {
   alert(summary);
 });
 
-// 時間排序
+// 排序行程按時間順序
 function sortActivitiesByTime(container) {
   const blocks = [...container.querySelectorAll('.activity-block')];
   blocks.sort((a, b) => {
@@ -155,4 +198,10 @@ function sortActivitiesByTime(container) {
   });
 
   blocks.forEach(block => container.appendChild(block));
-} 
+}
+
+// 儲存行程到 Firebase
+async function saveTripPlan(data) {
+  const docRef = await firebase.firestore().collection("tripPlans").add(data);
+  console.log("Document written with ID: ", docRef.id);
+}
