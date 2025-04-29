@@ -1,102 +1,59 @@
 ﻿body {
-  font-family: Arial, sans-serif;
+  font-family: 'Arial', sans-serif;
   margin: 0;
-  padding: 0;
-  background-color: #f5f5f5;
-}
-
-#app {
-  margin: 20px;
+  padding: 20px;
+  background-color: #f2f2f2;
+  color: #333;
 }
 
 header {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 10px;
+  align-items: center;
+}
+
+.controls {
+  margin: 20px 0;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
 }
 
 button {
-  padding: 10px;
-  margin: 5px;
-  background-color: #4CAF50;
-  color: white;
-  border: none;
+  padding: 10px 15px;
   cursor: pointer;
 }
 
-button:hover {
-  background-color: #45a049;
-}
-
-button#themeToggleBtn {
-  background-color: #3e8e41;
-}
-
-button#themeToggleBtn:hover {
-  background-color: #4CAF50;
-}
-
-#daysContainer {
-  margin-top: 20px;
-}
-
 .day {
-  background-color: #fff;
+  margin-bottom: 20px;
   padding: 15px;
-  margin: 10px 0;
-  border-radius: 5px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-.day.dark-mode {
-  background-color: #333;
-  color: white;
-}
-
-.activity-block {
-  margin-bottom: 10px;
-  padding: 10px;
-  background-color: #f9f9f9;
-  border-radius: 5px;
-}
-
-.activity-block.dark-mode {
-  background-color: #444;
-}
-
-.activity-block label {
-  display: block;
-  margin-bottom: 5px;
-}
-
-.activity-block input,
-.activity-block textarea {
-  width: 100%;
-  padding: 8px;
-  margin: 5px 0;
-  border-radius: 4px;
   border: 1px solid #ccc;
+  background-color: #fff;
+  border-radius: 8px;
 }
 
-.activity-block input[type="time"] {
-  width: 45%;
-}
-
-.activity-block button {
-  background-color: #ff5722;
-}
-
-.activity-block button:hover {
-  background-color: #e64a19;
+textarea, input {
+  width: 100%;
+  margin-top: 5px;
+  padding: 8px;
+  margin-bottom: 10px;
 }
 
 iframe.map {
   width: 100%;
   height: 200px;
   border: none;
+  margin-bottom: 10px;
 }
 
 .dark-mode {
-  background-color: #222;
-  color: white;
+  background-color: #222 !important;
+  color: #eee !important;
+}
+
+.dark-mode textarea,
+.dark-mode input {
+  background-color: #333;
+  color: #eee;
+  border: 1px solid #777;
 }
