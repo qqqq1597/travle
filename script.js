@@ -1,15 +1,27 @@
 ﻿const addDayBtn = document.getElementById('addDayBtn');
 const daysContainer = document.getElementById('daysContainer');
 const themeToggleBtn = document.getElementById('themeToggleBtn');
+const overviewBtn = document.getElementById('overviewBtn');
 
 let isDarkMode = false;
 
-// 夜間模式切換
+// 切換夜間模式
 themeToggleBtn.addEventListener('click', () => {
   isDarkMode = !isDarkMode;
   document.body.classList.toggle('dark-mode', isDarkMode);
   themeToggleBtn.textContent = isDarkMode ? '🌞 切換白天模式' : '🌙 切換夜間模式';
 });
+
+// 🔧 新增：排序活動區塊
+function sortActivitiesByTime(container) {
+  const blocks = Array.from(container.querySelectorAll('.activity-block'));
+  blocks.sort((a, b) => {
+    const timeA = a.querySelector('.start-time')?.value || '00:00';
+    const timeB = b.querySelector('.start-time')?.value || '00:00';
+    return timeA.localeCompare(timeB);
+  });
+  blocks.forEach(block => container.appendChild(block));
+}
 
 // 建立活動區塊
 function addActivityBlock(container, activityText, locationText, startTimeText = '', endTimeText = '') {
@@ -49,22 +61,18 @@ function addActivityBlock(container, activityText, locationText, startTimeText =
 
   deleteBtn.addEventListener('click', () => {
     block.remove();
-    sortActivitiesByTime(container); // 刪除後也重新排序
+    sortActivitiesByTime(container);
   });
 
   container.appendChild(block);
-
-  // ✅ 加入自動排序（新增後）
   sortActivitiesByTime(container);
 
-  // ✅ 監聽時間輸入，自動排序
   block.querySelector('.start-time').addEventListener('input', () => {
     sortActivitiesByTime(container);
   });
 }
 
-
-// 儲存一天的活動到 Firebase
+// 儲存活動到 Firestore
 function saveDayToFirestore(docId, activities) {
   const dayRef = db.collection("tripDays").doc(docId);
   const activitiesRef = dayRef.collection("activities");
@@ -74,14 +82,12 @@ function saveDayToFirestore(docId, activities) {
     snapshot.forEach(doc => batch.delete(doc.ref));
     return batch.commit();
   }).then(() => {
-    activities.forEach(act => {
-      activitiesRef.add(act);
-    });
+    activities.forEach(act => activitiesRef.add(act));
     alert("已儲存至雲端！");
   });
 }
 
-// 建立一天 UI
+// 建立一天的 UI
 function createDayUI(docId, title, activities) {
   const dayDiv = document.createElement('div');
   dayDiv.className = 'day';
@@ -100,19 +106,16 @@ function createDayUI(docId, title, activities) {
   const saveThisDayBtn = dayDiv.querySelector('.save-this-day-btn');
   const deleteDayBtn = dayDiv.querySelector('.delete-day-btn');
 
-  // 加活動
   addActivityBtn.addEventListener('click', () => {
     addActivityBlock(activitiesDiv, '', '', '', '');
   });
 
-  // 刪除這天
   deleteDayBtn.addEventListener('click', () => {
     if (confirm("確定要刪除這天嗎？")) {
       db.collection("tripDays").doc(docId).delete();
     }
   });
 
-  // 儲存這天
   saveThisDayBtn.addEventListener('click', () => {
     const blocks = activitiesDiv.querySelectorAll('.activity-block');
     const acts = [...blocks].map(block => ({
@@ -125,7 +128,6 @@ function createDayUI(docId, title, activities) {
     saveDayToFirestore(docId, acts);
   });
 
-  // 載入活動
   activities.forEach(act => {
     addActivityBlock(activitiesDiv, act.activity, act.location, act.startTime, act.endTime);
   });
@@ -133,7 +135,7 @@ function createDayUI(docId, title, activities) {
   daysContainer.appendChild(dayDiv);
 }
 
-// 新增天數 ➜ Firestore
+// 新增一天
 addDayBtn.addEventListener('click', () => {
   const userTitle = prompt("請輸入這天的行程標題（例如：5/24 香港 Day1）：");
 
@@ -151,8 +153,7 @@ addDayBtn.addEventListener('click', () => {
   });
 });
 
-
-// 載入所有天數 ➜ 即時更新
+// 即時載入所有行程
 db.collection("tripDays").orderBy("createdAt").onSnapshot(snapshot => {
   daysContainer.innerHTML = '';
   snapshot.forEach(doc => {
@@ -167,8 +168,8 @@ db.collection("tripDays").orderBy("createdAt").onSnapshot(snapshot => {
     });
   });
 });
-const overviewBtn = document.getElementById('overviewBtn');
 
+// 行程總覽按鈕
 overviewBtn.addEventListener('click', async () => {
   const tripDaysSnapshot = await db.collection("tripDays").orderBy("createdAt").get();
 
@@ -187,8 +188,6 @@ overviewBtn.addEventListener('click', async () => {
       .get();
 
     const activities = activitiesSnapshot.docs.map(doc => doc.data());
-
-    // 依開始時間排序
     activities.sort((a, b) => (a.startTime || '').localeCompare(b.startTime || ''));
 
     summary += `${dayData.title || "未命名"}\n`;
@@ -204,7 +203,7 @@ overviewBtn.addEventListener('click', async () => {
         const [sh, sm] = start.split(':').map(Number);
         const [eh, em] = end.split(':').map(Number);
         let diff = (eh - sh) * 60 + (em - sm);
-        if (diff < 0) diff += 1440; // 跨夜處理
+        if (diff < 0) diff += 1440;
         const hr = Math.floor(diff / 60);
         const min = diff % 60;
         durationText = `（${hr}小時${min}分鐘）`;
@@ -217,13 +216,4 @@ overviewBtn.addEventListener('click', async () => {
   }
 
   alert(summary);
-});
-window.addEventListener('load', () => {
-  const savedData = localStorage.getItem('tripPlan');
-  if (savedData) {
-    const tripData = JSON.parse(savedData);
-    tripData.forEach((day, index) => {
-      createDay(index + 1, day.activities);
-    });
-  }
 });
