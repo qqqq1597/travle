@@ -49,21 +49,20 @@ function addActivityBlock(container, activityText, locationText, startTimeText =
 
   deleteBtn.addEventListener('click', () => {
     block.remove();
+    sortActivitiesByTime(container); // 刪除後也重新排序
   });
 
   container.appendChild(block);
+
+  // ✅ 加入自動排序（新增後）
+  sortActivitiesByTime(container);
+
+  // ✅ 監聽時間輸入，自動排序
+  block.querySelector('.start-time').addEventListener('input', () => {
+    sortActivitiesByTime(container);
+  });
 }
 
-// 排序活動時間
-function sortActivitiesByTime(container) {
-  const blocks = [...container.querySelectorAll('.activity-block')];
-  blocks.sort((a, b) => {
-    const startA = a.querySelector('.start-time').value;
-    const startB = b.querySelector('.start-time').value;
-    return startA.localeCompare(startB);
-  });
-  blocks.forEach(block => container.appendChild(block));
-}
 
 // 儲存一天的活動到 Firebase
 function saveDayToFirestore(docId, activities) {
