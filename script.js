@@ -218,3 +218,12 @@ overviewBtn.addEventListener('click', async () => {
 
   alert(summary);
 });
+window.addEventListener('load', () => {
+  const savedData = localStorage.getItem('tripPlan');
+  if (savedData) {
+    const tripData = JSON.parse(savedData);
+    tripData.forEach((day, index) => {
+      createDay(index + 1, day.activities);
+    });
+  }
+});
