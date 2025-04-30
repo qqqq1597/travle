@@ -136,14 +136,22 @@ function createDayUI(docId, title, activities) {
 
 // 新增天數 ➜ Firestore
 addDayBtn.addEventListener('click', () => {
+  const userTitle = prompt("請輸入這天的行程標題（例如：5/24 香港 Day1）：");
+
+  if (!userTitle) {
+    alert("標題不能空白！");
+    return;
+  }
+
   db.collection("tripDays").add({
     dayNumber: Date.now(),
-    title: `第 ${new Date().toLocaleDateString()} 行程`,
+    title: userTitle,
     createdAt: firebase.firestore.FieldValue.serverTimestamp()
   }).then(docRef => {
-    createDayUI(docRef.id, `第 ${new Date().toLocaleDateString()} 行程`, []);
+    createDayUI(docRef.id, userTitle, []);
   });
 });
+
 
 // 載入所有天數 ➜ 即時更新
 db.collection("tripDays").orderBy("createdAt").onSnapshot(snapshot => {
@@ -159,4 +167,55 @@ db.collection("tripDays").orderBy("createdAt").onSnapshot(snapshot => {
       createDayUI(dayId, dayData.title, activities);
     });
   });
+});
+const overviewBtn = document.getElementById('overviewBtn');
+
+overviewBtn.addEventListener('click', async () => {
+  const tripDaysSnapshot = await db.collection("tripDays").orderBy("createdAt").get();
+
+  if (tripDaysSnapshot.empty) {
+    alert("目前還沒有任何行程！");
+    return;
+  }
+
+  let summary = "";
+
+  for (const dayDoc of tripDaysSnapshot.docs) {
+    const dayData = dayDoc.data();
+    const activitiesSnapshot = await db.collection("tripDays")
+      .doc(dayDoc.id)
+      .collection("activities")
+      .get();
+
+    const activities = activitiesSnapshot.docs.map(doc => doc.data());
+
+    // 依開始時間排序
+    activities.sort((a, b) => (a.startTime || '').localeCompare(b.startTime || ''));
+
+    summary += `${dayData.title || "未命名"}\n`;
+
+    activities.forEach((item, idx) => {
+      const start = item.startTime || '??:??';
+      const end = item.endTime || '??:??';
+      const activity = item.activity || '(未填寫行程)';
+      const location = item.location || '(未填寫地點)';
+
+      let durationText = '';
+      if (start !== '??:??' && end !== '??:??') {
+        const [sh, sm] = start.split(':').map(Number);
+        const [eh, em] = end.split(':').map(Number);
+        let diff = (eh - sh) * 60 + (em - sm);
+        if (diff < 0) diff += 1440; // 跨夜處理
+        const hr = Math.floor(diff / 60);
+        const min = diff % 60;
+        durationText = `（${hr}小時${min}分鐘）`;
+      }
+
+      summary += `${idx + 1}. ${activity} (${location}) - ${start} ~ ${end} ${durationText}\n`;
+    });
+
+    summary += '\n';
+  }
+
+  alert(summary);
 });
